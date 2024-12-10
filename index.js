@@ -125,6 +125,24 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/users/:email', verifyToken, async (req, res) => {
+            const email = req.params.email
+            const query = { email: email };
+            const result = await usersCollection.findOne(query)
+            res.send(result);
+        });
+
+        app.patch('/users/:email', verifyToken, async (req, res) => {
+            const email = req.params.email
+            const update = req.body
+            const query = { email: email };
+            const updateUser = {
+                $set: update,
+            };
+            const result = await usersCollection.updateOne(query, updateUser)
+            res.send(result);
+        })
+
         app.get('/users/admin/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
 
@@ -148,7 +166,7 @@ async function run() {
             if (existingUser) {
                 return res.send({ message: 'user already exists', insertedId: null })
             }
-            const result = await usersCollection.insertOne({name: user.name, email: user.email, role: 'user'});
+            const result = await usersCollection.insertOne({name: user.name, email: user.email, role: 'user', status: 'not varified'});
             res.send(result);
         });
 
